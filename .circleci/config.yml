@@ -29,8 +29,8 @@ jobs:
     steps:
       - checkout
       - run: |
-          docker build
-          docker push
+          docker build -t "m4_node_app" .
+          docker push "m4_node_app"
 
 workflows:
   simple_workflow:
