@@ -24,13 +24,15 @@ jobs:
           echo "Running tests..."
           npm run test
   publish:
-    docker:
-      - image: cimg/node:16.10
+    executor: docker/docker
     steps:
+      - setup_remote_docker
       - checkout
-      - run: |
-          docker build -t "m4_node_app" .
-          docker push "m4_node_app"
+      - docker/check
+      - docker/build:
+          image: phoebeykq/education-space
+      - docker/push:
+          image: phoebeykq/education-space
 
 workflows:
   simple_workflow:
