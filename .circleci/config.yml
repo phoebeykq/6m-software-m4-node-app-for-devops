@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@5.0.1
+  docker: circleci/docker@2.2.0
 jobs:
   build:
     docker:
@@ -22,6 +23,14 @@ jobs:
       - run: |
           echo "Running tests..."
           npm run test
+  publish:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - run: |
+          docker build
+          docker push
 
 workflows:
   simple_workflow:
@@ -30,3 +39,6 @@ workflows:
       - test:
           requires:
             - build
+      - publish:
+          requires:
+            - test
