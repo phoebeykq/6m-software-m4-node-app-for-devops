@@ -1,7 +1,10 @@
 version: 2.1
+
 orbs:
   node: circleci/node@5.0.1
   docker: circleci/docker@2.2.0
+  snyk: snyk/snyk@1.5.0
+
 jobs:
   build:
     docker:
@@ -23,6 +26,18 @@ jobs:
       - run: |
           echo "Running tests..."
           npm run test
+  scan:
+    docker:
+      - image: cimg/node:16.10
+    environment:
+      IMAGE_NAME: phoebeykq/education-space
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check
+      - run: docker build -t $IMAGE_NAME .
+      - snyk/scan:
+        docker-image-name: $IMAGE_NAME
   publish:
     executor: docker/docker
     steps:
@@ -35,12 +50,24 @@ jobs:
           image: phoebeykq/education-space
 
 workflows:
-  simple_workflow:
+  my_simple_workflow:
     jobs:
       - build
+          filters:
+            branches:
+              only: main
       - test:
           requires:
             - build
+          filters:
+            branches:
+              only: main
+      - scan:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
       - publish:
           requires:
             - test
